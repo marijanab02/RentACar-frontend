@@ -1,17 +1,18 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://rentacar.test/api',
-    withCredentials: true, // ako koristiš session/cookie auth
-    headers: {
-        Accept: 'application/json',
-    },
+    baseURL: '/api',
 });
+
+// Attach credentials to every request
 api.interceptors.request.use(config => {
     const token = localStorage.getItem('token');
     if (token) {
         config.headers.Authorization = `Basic ${token}`;
     }
     return config;
+}, error => {
+    return Promise.reject(error);
 });
+
 export default api;

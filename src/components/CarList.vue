@@ -1,9 +1,13 @@
 <template>
+<div class="min-h-screen flex flex-col bg-gray-50">
+   <Navbar />
   <div class="px-4 py-6 w-full mx-auto">
+  
     <!-- Naslov i gumb za dodavanje -->
     <div class="flex flex-col sm:flex-row justify-between items-center mb-6">
       <h2 class="text-3xl font-extrabold text-gray-800 mb-4 sm:mb-0">Lista automobila</h2>
       <button
+        v-if="auth.isCreator()"
         @click="openForm()"
         class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg shadow"
       >
@@ -78,6 +82,7 @@
             </td>
             <td class="px-4 py-3 text-center space-x-2">
               <button
+                v-if="auth.isAdmin()"
                 @click="openForm(car)"
                 class="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded-md shadow-sm text-sm"
                 title="Uredi"
@@ -85,6 +90,7 @@
                 Uredi
               </button>
               <button
+                v-if="auth.isAdmin()"
                 @click="confirmDelete(car)"
                 class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md shadow-sm text-sm"
                 title="Obriši"
@@ -236,13 +242,23 @@
       </div>
     </transition>
   </div>
+  </div>
 </template>
 
 <script>
+import Navbar from '@/components/Navbar.vue'
 import api from '../services/api'
+import { useAuthStore } from '@/stores/auth'
+import { useRouter } from 'vue-router'
 
 export default {
   name: 'CarsList',
+  components: { Navbar }, 
+  setup() {
+    const auth = useAuthStore()
+    const router = useRouter()
+    return { auth, router }
+  },
   data() {
     return {
       cars: [],
@@ -272,7 +288,16 @@ export default {
         const response = await api.get('/cars-api')
         this.cars = response.data
       } catch (error) {
-        console.error('Greška pri dohvaćanju automobila:', error)
+        // Handle 401 specifically
+        if (error.response?.status === 401) {
+          alert('Niste prijavljeni ili vaše sesije je istekla!')
+          this.auth.logout()
+          this.router.push('/login')
+        } else if (error.response?.status === 403) {
+          alert('Samo administratori mogu pristupiti ovoj stranici!')
+        } else {
+          console.error('Greška pri dohvaćanju automobila:', error)
+        }
       } finally {
         this.loading = false
       }
@@ -331,21 +356,24 @@ export default {
         }
 
         if (this.editingCar) {
-          // FIX: Put _method=PUT in the form data instead of URL
-          formData.append('_method', 'PUT');
+          formData.append('_method', 'PUT')
           
           const response = await api.post(
             `/cars-api/${this.editingCar.CAR_ID}`,
-            formData
-          );
-          
+            formData,
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data'
+              }
+            }
+          )
           const updatedCar = response.data.cars;
           const idx = this.cars.findIndex(c => c.CAR_ID === this.editingCar.CAR_ID);
           if (idx !== -1) {
             this.cars.splice(idx, 1, updatedCar);
           }
+          // ... update logic ...
         } else {
-          // Dodavanje novog automobila (POST)
           const response = await api.post('/cars-api', formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
           })
@@ -355,9 +383,14 @@ export default {
 
         this.closeForm()
       } catch (error) {
-        // Ako i dalje dobiješ 422, možeš console.log(error.response.data)
-        console.error('Greška pri spremanju automobila:', error)
-        alert('Došlo je do pogreške. Provjeri sve unesene podatke i pokušaj ponovno.')
+        if (error.response?.status === 401) {
+          alert('Sesija je istekla, prijavite se ponovno!')
+          this.auth.logout()
+          this.router.push('/login')
+        } else {
+          console.error('Greška pri spremanju automobila:', error)
+          alert('Došlo je do pogreške. Provjeri sve unesene podatke i pokušaj ponovno.')
+        }
       }
     },
 
@@ -374,11 +407,17 @@ export default {
     async deleteCar() {
       try {
         await api.delete(`/cars-api/${this.carToDelete.CAR_ID}`)
-        this.cars = this.cars.filter(c => c.CAR_ID !== this.carToDelete.CAR_ID)
+         this.cars = this.cars.filter(c => c.CAR_ID !== this.carToDelete.CAR_ID)
         this.cancelDelete()
       } catch (error) {
-        console.error('Greška pri brisanju automobila:', error)
-        alert('Došlo je do pogreške prilikom brisanja.')
+        if (error.response?.status === 401) {
+          alert('Sesija je istekla, prijavite se ponovno!')
+          this.auth.logout()
+          this.router.push('/login')
+        } else {
+          console.error('Greška pri brisanju automobila:', error)
+          alert('Došlo je do pogreške prilikom brisanja.')
+        }
       }
     },
   },
