@@ -5,6 +5,10 @@ import CarsList from '../components/CarList.vue'
 import Login from '../components/LoginView.vue'
 import RegisterUser from '../components/RegisterUser.vue'
 import UsersList from '../components/UsersList.vue'
+import BookingList from '../components/BookingList.vue'
+
+
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -37,6 +41,12 @@ const router = createRouter({
       path: '/users',
       name: 'users',
       component: UsersList,
+    },
+    {
+       path: '/bookings',
+      name: 'bookings',
+      component: () => import('../components/BookingList.vue'), // ili promijeni ako je u "views"
+      meta: { requiresAuth: true } // ako želiš da je dostupno samo logiranim korisnicima
     },
   ],
 })

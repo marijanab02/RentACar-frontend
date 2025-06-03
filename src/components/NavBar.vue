@@ -19,21 +19,41 @@
           >
             Korisnici
           </router-link>
+          <router-link
+            to="/bookings"
+            class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
+          >
+            Rezervacije
+          </router-link>
         </div>
-        <!-- Desna strana: Prijava / Registracija -->
+
+        <!-- Desna strana: Auth dio -->
         <div class="flex items-center space-x-4">
-          <router-link
-            to="/register"
-            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow"
-          >
-            Registracija
-          </router-link>
-          <router-link
-            to="/login"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow"
-          >
-            Prijava
-          </router-link>
+          <template v-if="!auth.user">
+            <router-link
+              to="/register"
+              class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow"
+            >
+              Registracija
+            </router-link>
+            <router-link
+              to="/login"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow"
+            >
+              Prijava
+            </router-link>
+          </template>
+          <template v-else>
+            <span class="text-gray-700 text-sm font-medium">
+              Pozdrav, {{ auth.user.fname }}
+            </span>
+            <button
+              @click="logout"
+              class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow"
+            >
+              Odjavi se
+            </button>
+          </template>
         </div>
       </div>
     </div>
@@ -41,7 +61,16 @@
 </template>
 
 <script setup>
-// Ova komponenta nema dodatnu logiku
+import { useAuthStore } from '@/stores/auth'
+import { useRouter } from 'vue-router'
+
+const auth = useAuthStore()
+const router = useRouter()
+
+const logout = () => {
+  auth.logout()
+  router.push('/login')
+}
 </script>
 
 <style scoped>
