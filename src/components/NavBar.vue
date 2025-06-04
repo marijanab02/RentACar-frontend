@@ -20,20 +20,31 @@
             Korisnici
           </router-link>
         </div>
-        <!-- Desna strana: Prijava / Registracija -->
+
+        <!-- Desna strana: Prijava / Registracija / Odjava -->
         <div class="flex items-center space-x-4">
-          <router-link
-            to="/register"
-            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow"
-          >
-            Registracija
-          </router-link>
-          <router-link
-            to="/login"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow"
-          >
-            Prijava
-          </router-link>
+          <template v-if="auth.isLoggedIn()">
+            <button
+              @click="handleLogout"
+              class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow"
+            >
+              Odjava
+            </button>
+          </template>
+          <template v-else>
+            <router-link
+              to="/register"
+              class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow"
+            >
+              Registracija
+            </router-link>
+            <router-link
+              to="/login"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow"
+            >
+              Prijava
+            </router-link>
+          </template>
         </div>
       </div>
     </div>
@@ -41,9 +52,14 @@
 </template>
 
 <script setup>
-// Ova komponenta nema dodatnu logiku
-</script>
+import { useAuthStore } from '@/stores/auth' // putanja do tvog auth store-a
+import { useRouter } from 'vue-router'
 
-<style scoped>
-/* Sve stilove postavljamo putem Tailwind klasa */
-</style>
+const auth = useAuthStore()
+const router = useRouter()
+
+const handleLogout = () => {
+  auth.logout()
+  router.push('/login') // vrati korisnika na login stranicu
+}
+</script>

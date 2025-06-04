@@ -5,6 +5,7 @@ import CarsList from '../components/CarList.vue'
 import Login from '../components/LoginView.vue'
 import RegisterUser from '../components/RegisterUser.vue'
 import UsersList from '../components/UsersList.vue'
+import SocialCallback from '../components/SocialCallback.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -13,6 +14,11 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: Login,
+    },
+    {
+      path: '/auth/callback',       // **Nova ruta za obradu Google callbacka**
+      name: 'social-callback',
+      component: SocialCallback,
     },
     {
       path: '/',
@@ -35,7 +41,6 @@ const router = createRouter({
     },
     {
       path: '/users',
-      name: 'users',
       component: UsersList,
     },
   ],

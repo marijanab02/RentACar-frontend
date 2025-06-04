@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://rentacar.test/api',
+    baseURL: 'http://localhost:8000/api',
     withCredentials: true, // ako koristiš session/cookie auth
     headers: {
         Accept: 'application/json',
@@ -10,7 +10,7 @@ const api = axios.create({
 api.interceptors.request.use(config => {
     const token = localStorage.getItem('token');
     if (token) {
-        config.headers.Authorization = `Basic ${token}`;
+        config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
 });
