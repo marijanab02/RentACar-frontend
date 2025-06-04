@@ -49,7 +49,7 @@
                 <div class="w-16 h-10 flex-shrink-0 overflow-hidden rounded-md border">
                   <img
                     v-if="car.CAR_IMG"
-                    :src="`http://rentacar.test/storage/${car.CAR_IMG}`"
+                    :src="`http://localhost:8000/storage/${car.CAR_IMG}`"
                     alt="Car Image"
                     class="w-full h-full object-cover"
                   />
@@ -250,6 +250,8 @@ import Navbar from '@/components/Navbar.vue'
 import api from '../services/api'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
 
 export default {
   name: 'CarsList',
@@ -278,14 +280,15 @@ export default {
       carToDelete: null,
     }
   },
+
   mounted() {
-    this.getCars()
-  },
+      this.getCars();
+    },
   methods: {
     async getCars() {
       this.loading = true
       try {
-        const response = await api.get('/cars-api')
+        const response = await axios.get('http://localhost:8000/api/cars-api');
         this.cars = response.data
       } catch (error) {
         // Handle 401 specifically

@@ -9,6 +9,7 @@ import BookingList from '../components/BookingList.vue'
 
 
 
+import SocialCallback from '../components/SocialCallback.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -17,6 +18,11 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: Login,
+    },
+    {
+      path: '/auth/callback',       // **Nova ruta za obradu Google callbacka**
+      name: 'social-callback',
+      component: SocialCallback,
     },
     {
       path: '/',
@@ -39,11 +45,10 @@ const router = createRouter({
     },
     {
       path: '/users',
-      name: 'users',
       component: UsersList,
     },
     {
-       path: '/bookings',
+      path: '/bookings',
       name: 'bookings',
       component: () => import('../components/BookingList.vue'), // ili promijeni ako je u "views"
       meta: { requiresAuth: true } // ako želiš da je dostupno samo logiranim korisnicima

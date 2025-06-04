@@ -72,7 +72,3 @@ const logout = () => {
   router.push('/login')
 }
 </script>
-
-<style scoped>
-/* Sve stilove postavljamo putem Tailwind klasa */
-</style>
